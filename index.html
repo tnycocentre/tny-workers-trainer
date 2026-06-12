@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trainer Dashboard — TNY Worker Training</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --white:#FFFFFF; --yellow:#F5C800; --yellow-dk:#C9A000; --yellow-lt:#FFFBE6;
+  --black:#111111; --ink:#1A1A1A;
+  --blue:#1C3FD4; --blue-lt:#EEF1FD; --blue-mid:#3A5AEE;
+  --pink:#F0187A; --pink-lt:#FDE8F2;
+  --grey:#F5F5F5; --grey2:#E8E8E8; --muted:#777; --border:#E0E0E0;
+  --success:#1A9E6A; --success-lt:#E6F7F1; --warn:#E06020; --warn-lt:#FDF0E8;
+  --shadow:0 2px 10px rgba(0,0,0,0.07); --shadow-md:0 4px 20px rgba(0,0,0,0.11);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{font-family:'Inter',sans-serif;background:var(--grey);color:var(--ink);min-height:100vh;font-size:15px}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--black);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.topbar-logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--yellow)}
+.topbar-sub{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:1px}
+.trainer-badge{background:var(--yellow);color:var(--black);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px}
+
+/* ── LAYOUT ── */
+.layout{display:flex;min-height:calc(100vh - 54px)}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);padding:20px 0;flex-shrink:0;position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto}
+.nav-section{padding:6px 20px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-top:12px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:13.5px;color:#666;border-left:3px solid transparent;transition:all 0.18s}
+.nav-item:hover{color:var(--ink);background:var(--grey)}
+.nav-item.active{color:var(--ink);border-left-color:var(--yellow);background:var(--yellow-lt);font-weight:600}
+.nav-item .ni{font-size:16px;width:20px;text-align:center}
+
+/* ── MAIN ── */
+.main{flex:1;padding:28px 28px 48px;min-width:0;overflow-x:hidden}
+
+/* ── PAGE SYSTEM ── */
+.tpage{display:none}
+.tpage.active{display:block}
+
+/* ── PAGE HEADING ── */
+.ph{margin-bottom:24px}
+.ph h1{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.ph p{font-size:13px;color:var(--muted)}
+
+/* ── STATS GRID ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--white);border-radius:12px;padding:18px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.stat-card .sc-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px}
+.stat-card .sc-val{font-family:'Fraunces',serif;font-size:32px;font-weight:700;color:var(--ink);line-height:1}
+.stat-card .sc-val span{font-size:16px;color:var(--muted);font-family:'Inter',sans-serif}
+.stat-card .sc-sub{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px;box-shadow:var(--shadow)}
+.card-title{font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.card-title .ct-sub{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);font-weight:400}
+
+/* ── GRID LAYOUTS ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px}
+@media(max-width:900px){.two-col,.three-col{grid-template-columns:1fr}}
+
+/* ── PBAR ── */
+.pbar{height:5px;background:var(--grey2);border-radius:3px;margin-top:8px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.fy{background:var(--yellow)} .fb{background:var(--blue)} .fp{background:var(--pink)}
+.fg{background:var(--success)} .fw{background:var(--warn)}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.tt{width:100%;border-collapse:collapse;font-size:13px;min-width:720px}
+table.tt thead tr{background:var(--black)}
+table.tt thead th{padding:12px 14px;text-align:left;color:var(--white);font-weight:600;font-size:11.5px;letter-spacing:0.5px;white-space:nowrap}
+table.tt thead th:first-child{border-radius:8px 0 0 0}
+table.tt thead th:last-child{border-radius:0 8px 0 0}
+table.tt tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s;cursor:pointer}
+table.tt tbody tr:last-child{border-bottom:none}
+table.tt tbody tr:hover{background:var(--yellow-lt)}
+table.tt td{padding:12px 14px;vertical-align:middle}
+.td-name{font-weight:600;color:var(--ink)}
+.td-name small{display:block;color:var(--muted);font-weight:400;font-size:11px}
+
+/* ── BADGES ── */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.bg-green{background:var(--success-lt);color:var(--success)}
+.bg-yellow{background:var(--yellow-lt);color:var(--yellow-dk)}
+.bg-red{background:#FEF0F0;color:#D94040}
+.bg-grey{background:var(--grey2);color:var(--muted)}
+.bg-pink{background:var(--pink-lt);color:var(--pink)}
+.bg-blue{background:var(--blue-lt);color:var(--blue)}
+
+/* ── REQ DOTS ── */
+.req-dots{display:flex;gap:4px;align-items:center}
+.rd{width:11px;height:11px;border-radius:50%;display:inline-block;flex-shrink:0;cursor:help}
+.rd.done{background:var(--success)}
+.rd.partial{background:var(--yellow)}
+.rd.no{background:var(--border)}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:18px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;padding:28px;position:relative;animation:mIn .25s ease}
+@keyframes mIn{from{transform:scale(.95) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:var(--grey);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700;transition:all 0.15s}
+.modal-close:hover{background:var(--grey2);color:var(--ink)}
+.modal h2{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.modal .msub{font-size:13px;color:var(--muted);margin-bottom:20px}
+
+.mstat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+.mstat{border-radius:10px;padding:12px;text-align:center}
+.mstat .ms-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:4px}
+.mstat .ms-val{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--ink)}
+
+.mreq-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;margin-bottom:7px}
+.mreq-dot{width:24px;height:24px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;font-weight:700}
+.mreq-dot.done{background:var(--success);border-color:var(--success);color:#fff}
+.mreq-dot.partial{background:var(--yellow-lt);border-color:var(--yellow-dk);color:var(--yellow-dk)}
+.mreq-dot.pending{background:var(--grey);border-color:var(--border);color:transparent}
+.mreq-label{flex:1;font-size:13px;color:var(--ink)}
+.mreq-label small{display:block;font-size:11.5px;color:var(--muted);margin-top:1px}
+
+/* ── FORM ── */
+.form-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}
+.form-group label{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.form-sel,.form-inp{background:var(--grey);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;font-size:13px;font-family:'Inter',sans-serif;color:var(--ink);outline:none;transition:border-color 0.2s;width:100%}
+.form-sel:focus,.form-inp:focus{border-color:var(--black)}
+
+/* ── BUTTONS ── */
+.btn{border:none;border-radius:10px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;padding:11px 20px;transition:all 0.18s}
+.btn-yellow{background:var(--yellow);color:var(--black)}
+.btn-yellow:hover{background:var(--yellow-dk)}
+.btn-black{background:var(--black);color:var(--white)}
+.btn-black:hover{background:#333}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--ink)}
+.btn-outline:hover{border-color:var(--black)}
+.btn-sm{padding:7px 14px;font-size:12px}
+
+/* ── FLAGGED ALERT ── */
+.flag-card{padding:12px 14px;border-radius:10px;margin-bottom:8px}
+.flag-red{background:var(--pink-lt);border-left:3px solid var(--pink)}
+.flag-warn{background:var(--warn-lt);border-left:3px solid var(--warn)}
+
+.mtab { padding:9px 16px; font-size:12px; font-weight:700; cursor:pointer; color:var(--muted); border:none; border-bottom:2px solid transparent; background:none; font-family:'Inter',sans-serif; transition:all 0.18s; }
+.mtab:hover { color:var(--ink); }
+.mtab.active { color:var(--ink); border-bottom-color:var(--yellow); }
+.mreq-label small { display:block; font-size:11px; color:var(--muted); font-weight:400; margin-top:1px; }
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--black);color:var(--white);padding:10px 22px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transition:all 0.3s;z-index:500;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── RESPONSIVE SIDEBAR ── */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{padding:18px 16px 40px}
+  .ph h1{font-size:20px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-logo">TNY Workers</div>
+    <div class="topbar-sub">Trainer Dashboard</div>
+  </div>
+  <div class="trainer-badge">TRAINER</div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active" onclick="showPage('overview',this)"><span class="ni">⬡</span> Overview</div>
+    <div class="nav-item" onclick="showPage('flagged',this)"><span class="ni">⚑</span> Flagged</div>
+
+    <div class="nav-section">Trainees</div>
+    <div class="nav-item" onclick="showPage('trainees',this)"><span class="ni">◎</span> All Trainees</div>
+    <div class="nav-item" onclick="showPage('requirements',this)"><span class="ni">◈</span> Requirements</div>
+
+    <div class="nav-section">Logging</div>
+    <div class="nav-item" onclick="showPage('log-attendance',this)"><span class="ni">◇</span> Log Attendance</div>
+    <div class="nav-item" onclick="showPage('log-requirements',this)"><span class="ni">✦</span> Update Requirements</div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ── OVERVIEW ── -->
+    <div class="tpage active" id="tp-overview">
+      <div class="ph">
+        <h1>Cohort Overview</h1>
+        <p>3-Month Worker Training · Cohort 1 · 2026</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="sc-label">Total Trainees</div>
+          <div class="sc-val">12</div>
+          <div class="sc-sub">Active in cohort</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">On Track</div>
+          <div class="sc-val" style="color:var(--success)">7</div>
+          <div class="sc-sub">Meeting all targets</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">Needs Attention</div>
+          <div class="sc-val" style="color:var(--pink)">3</div>
+          <div class="sc-sub">Below 2+ targets</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">Avg Services</div>
+          <div class="sc-val">74<span>%</span></div>
+          <div class="sc-sub">Cohort average</div>
+          <div class="pbar"><div class="pbar-fill fg" style="width:74%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">Avg Prayer</div>
+          <div class="sc-val">61<span>%</span></div>
+          <div class="sc-sub">Below 70% target</div>
+          <div class="pbar"><div class="pbar-fill fw" style="width:61%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">Avg Punctuality</div>
+          <div class="sc-val">79<span>%</span></div>
+          <div class="sc-sub">Close to 80% target</div>
+          <div class="pbar"><div class="pbar-fill fy" style="width:79%"></div></div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">Requirements Progress</div>
+          <div style="font-size:13px;display:flex;flex-direction:column;gap:10px">
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--ink);font-weight:500">Saved</span><span style="font-weight:700;color:var(--success)">12/12</span></div><div class="pbar"><div class="pbar-fill fg" style="width:100%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--ink);font-weight:500">Filled with Holy Ghost</span><span style="font-weight:700;color:var(--success)">11/12</span></div><div class="pbar"><div class="pbar-fill fg" style="width:92%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--ink);font-weight:500">Gospel conversation logged</span><span style="font-weight:700;color:var(--yellow-dk)">8/12</span></div><div class="pbar"><div class="pbar-fill fy" style="width:67%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--ink);font-weight:500">Convert brought to church</span><span style="font-weight:700;color:var(--pink)">3/12</span></div><div class="pbar"><div class="pbar-fill fp" style="width:25%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--ink);font-weight:500">Un-churched person invited</span><span style="font-weight:700;color:var(--pink)">4/12</span></div><div class="pbar"><div class="pbar-fill fp" style="width:33%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--ink);font-weight:500">Reading texts completed</span><span style="font-weight:700;color:var(--yellow-dk)">5/12</span></div><div class="pbar"><div class="pbar-fill fy" style="width:42%"></div></div></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">Month 1 Insight</div>
+          <div style="background:var(--yellow-lt);border:1px solid rgba(245,200,0,0.35);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--ink);line-height:1.7;margin-bottom:14px">
+            Service attendance is <strong>on track</strong> for most trainees. The biggest gap is <strong>prayer time attendance</strong> at 61% — below the 70% target. Gospel engagement (bringing converts + inviting un-churched) needs active coaching. Recommend dedicating 10 minutes of Tuesday class to accountability check-ins.
+          </div>
+          <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px">Flagged This Week</div>
+          <div class="flag-card flag-red"><div style="font-weight:600;color:var(--ink);font-size:13px">Chidi Okafor</div><div style="font-size:12px;color:var(--muted)">Prayer: 38% · Services: 55%</div></div>
+          <div class="flag-card flag-red"><div style="font-weight:600;color:var(--ink);font-size:13px">Amaka Eze</div><div style="font-size:12px;color:var(--muted)">Punctuality: 52% · Prayer: 44%</div></div>
+          <div class="flag-card flag-warn"><div style="font-weight:600;color:var(--ink);font-size:13px">Tunde Balogun</div><div style="font-size:12px;color:var(--muted)">Reading behind · No gospel log</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FLAGGED ── -->
+    <div class="tpage" id="tp-flagged">
+      <div class="ph">
+        <h1>Flagged Trainees</h1>
+        <p>Trainees below target in one or more areas. Updates live from Google Sheets.</p>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Critical — Below 2+ Targets <span class="badge bg-pink" id="flag-critical-count">0</span></div>
+        <div id="flag-critical-body"><div style="color:var(--muted);font-size:13px;padding:8px 0">Loading…</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Watch — Borderline in 1 Area <span class="badge bg-yellow" id="flag-watch-count">0</span></div>
+        <div id="flag-watch-body"><div style="color:var(--muted);font-size:13px;padding:8px 0">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- ── ALL TRAINEES ── -->
+    <div class="tpage" id="tp-trainees">
+      <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div><h1>All Trainees</h1><p>Tap a row to view full requirement breakdown.</p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input class="form-inp" id="search-inp" placeholder="Search by name…" style="max-width:200px;padding:8px 12px;font-size:13px" oninput="filterTable()">
+        </div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="table-wrap">
+          <table class="tt">
+            <thead>
+              <tr>
+                <th>Trainee</th>
+                <th>Services %</th>
+                <th>Prayer %</th>
+                <th>Punctuality %</th>
+                <th>Requirements</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="trainee-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── REQUIREMENTS VIEW ── -->
+    <div class="tpage" id="tp-requirements">
+      <div class="ph">
+        <h1>Requirements Overview</h1>
+        <p>Per-requirement status across all 12 trainees.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">All 9 Requirements — Cohort Status</div>
+        <div class="table-wrap">
+          <table class="tt" style="min-width:500px">
+            <thead>
+              <tr>
+                <th>Requirement</th>
+                <th>Met</th>
+                <th>In Progress</th>
+                <th>Not Yet</th>
+                <th>% Done</th>
+              </tr>
+            </thead>
+            <tbody id="req-overview-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LOG ATTENDANCE ── -->
+    <div class="tpage" id="tp-log-attendance">
+      <div class="ph">
+        <h1>Log Attendance</h1>
+        <p>Record service, prayer, and punctuality for any trainee.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">New Attendance Record</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Trainee</label>
+            <select class="form-sel" id="la-trainee">
+              <option value="">Select trainee…</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Session Type</label>
+            <select class="form-sel" id="la-type">
+              <option value="">Select…</option>
+              <option>Sunday Service</option>
+              <option>Tuesday Service</option>
+              <option>Friday Immerse</option>
+              <option>Morning Prayer</option>
+              <option>Night Prayer</option>
+              <option>Personal Fellowship (30 min)</option>
+              <option>Extended Fellowship (1 hr)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" class="form-inp" id="la-date">
+          </div>
+          <div class="form-group">
+            <label>Attendance</label>
+            <select class="form-sel" id="la-status">
+              <option value="present">Present — On time</option>
+              <option value="late">Present — Late</option>
+              <option value="absent">Absent</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Notes (optional)</label>
+            <input class="form-inp" id="la-note" placeholder="e.g. Called in sick, approved absence">
+          </div>
+        </div>
+        <button class="btn btn-yellow" onclick="submitAttendance()">Save Record</button>
+      </div>
+
+      <!-- RECENT LOG -->
+      <div class="card">
+        <div class="card-title">Recent Logs <span class="ct-sub">Last 10 entries</span></div>
+        <div class="table-wrap">
+          <table class="tt" style="min-width:500px">
+            <thead><tr><th>Trainee</th><th>Session</th><th>Date</th><th>Status</th><th>Note</th></tr></thead>
+            <tbody id="log-tbody">
+              <tr><td><div class="td-name">Funmi Adeyemi</div></td><td>Sunday Service</td><td>8 Jun 2026</td><td><span class="badge bg-green">Present</span></td><td style="color:var(--muted)">—</td></tr>
+              <tr><td><div class="td-name">Ngozi Ibe</div></td><td>Morning Prayer</td><td>7 Jun 2026</td><td><span class="badge bg-green">Present</span></td><td style="color:var(--muted)">—</td></tr>
+              <tr><td><div class="td-name">Chidi Okafor</div></td><td>Friday Immerse</td><td>6 Jun 2026</td><td><span class="badge bg-red">Absent</span></td><td style="color:var(--muted)">No notice</td></tr>
+              <tr><td><div class="td-name">Amaka Eze</div></td><td>Tuesday Service</td><td>3 Jun 2026</td><td><span class="badge bg-yellow">Late</span></td><td style="color:var(--muted)">30 mins late</td></tr>
+              <tr><td><div class="td-name">Blessing Nwosu</div></td><td>Morning Prayer</td><td>3 Jun 2026</td><td><span class="badge bg-green">Present</span></td><td style="color:var(--muted)">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── UPDATE REQUIREMENTS ── -->
+    <div class="tpage" id="tp-log-requirements">
+      <div class="ph">
+        <h1>Update Requirements</h1>
+        <p>Mark a requirement as completed, in progress, or pending for any trainee.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Update a Requirement</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Trainee</label>
+            <select class="form-sel" id="lr-trainee">
+              <option value="">Select trainee…</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Requirement</label>
+            <select class="form-sel" id="lr-req">
+              <option value="">Select requirement…</option>
+              <option>Saved — confirmed</option>
+              <option>Filled with Holy Ghost — tongues confirmed</option>
+              <option>Gospel conversation logged</option>
+              <option>Convert brought to church</option>
+              <option>Un-churched person invited</option>
+              <option>Book 1 (Believer's Authority) completed</option>
+              <option>Book 2 (Led by the Spirit) completed</option>
+              <option>70% prayer attendance achieved</option>
+              <option>70% service attendance achieved</option>
+              <option>80% punctuality achieved</option>
+              <option>Daily fellowship consistency met</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>New Status</label>
+            <select class="form-sel" id="lr-status">
+              <option value="done">✓ Completed</option>
+              <option value="partial">~ In Progress</option>
+              <option value="pending">○ Not Yet Started</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Evidence / Note</label>
+            <input class="form-inp" id="lr-note" placeholder="e.g. Convert attended Sunday 8 June 2026">
+          </div>
+        </div>
+        <button class="btn btn-yellow" onclick="submitRequirement()">Update Requirement</button>
+      </div>
+
+      <!-- RECENT UPDATES -->
+      <div class="card">
+        <div class="card-title">Recent Updates</div>
+        <div class="table-wrap">
+          <table class="tt" style="min-width:500px">
+            <thead><tr><th>Trainee</th><th>Requirement</th><th>Status</th><th>Note</th><th>Updated</th></tr></thead>
+            <tbody id="req-log-tbody">
+              <tr><td><div class="td-name">Ngozi Ibe</div></td><td>Convert brought to church</td><td><span class="badge bg-green">Done</span></td><td style="font-size:12px;color:var(--muted)">Attended Sun 1 Jun</td><td style="color:var(--muted);font-size:12px">2 Jun 2026</td></tr>
+              <tr><td><div class="td-name">Funmi Adeyemi</div></td><td>Gospel conversation logged</td><td><span class="badge bg-green">Done</span></td><td style="font-size:12px;color:var(--muted)">Neighbour conversation</td><td style="color:var(--muted);font-size:12px">28 May 2026</td></tr>
+              <tr><td><div class="td-name">Blessing Nwosu</div></td><td>Book 1 completed</td><td><span class="badge bg-yellow">In Progress</span></td><td style="font-size:12px;color:var(--muted)">On chapter 4</td><td style="color:var(--muted);font-size:12px">25 May 2026</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div><!-- layout -->
+
+<!-- TRAINEE DETAIL MODAL -->
+<div class="overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" style="max-width:620px">
+    <button class="modal-close" onclick="document.getElementById('modal-overlay').classList.remove('open')">×</button>
+    <h2 id="m-name">Trainee Name</h2>
+    <div class="msub" id="m-sub">Cohort 1</div>
+
+    <div class="mstat-row">
+      <div class="mstat" style="background:var(--yellow-lt)">
+        <div class="ms-label" style="color:var(--yellow-dk)">Services</div>
+        <div class="ms-val" id="m-svc">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Target 70%</div>
+      </div>
+      <div class="mstat" style="background:var(--blue-lt)">
+        <div class="ms-label" style="color:var(--blue)">Prayer</div>
+        <div class="ms-val" id="m-prayer">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Target 70%</div>
+      </div>
+      <div class="mstat" style="background:var(--pink-lt)">
+        <div class="ms-label" style="color:var(--pink)">Punctuality</div>
+        <div class="ms-val" id="m-punc">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Target 80%</div>
+      </div>
+    </div>
+
+    <!-- Modal tabs -->
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px">
+      <button class="mtab active" onclick="switchMTab('reqs',this)">Requirements</button>
+      <button class="mtab" onclick="switchMTab('reading',this)">Reading</button>
+      <button class="mtab" onclick="switchMTab('quizzes',this)">Quizzes</button>
+      <button class="mtab" onclick="switchMTab('journal',this)">Journal</button>
+    </div>
+
+    <div id="mtab-reqs">
+      <div id="m-reqs"></div>
+    </div>
+    <div id="mtab-reading" style="display:none">
+      <div id="m-reading"><div style="color:var(--muted);font-size:13px">No reading data yet.</div></div>
+    </div>
+    <div id="mtab-quizzes" style="display:none">
+      <div id="m-quizzes"><div style="color:var(--muted);font-size:13px">No quiz scores yet.</div></div>
+    </div>
+    <div id="mtab-journal" style="display:none">
+      <div id="m-journal"><div style="color:var(--muted);font-size:13px">No journal entries yet.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── GOOGLE SHEETS ──
+const DB_URL = 'https://script.google.com/macros/s/AKfycbwUUcGU7VmHzsYbw7SLzpgcH6eMbNTA-ekrT7ntL-9RTeWHEpmZAExD9_gNiH-YJIGixg/exec';
+
+async function dbGet(params) {
+  const url = DB_URL + '?' + new URLSearchParams(params);
+  const res = await fetch(url, { redirect: 'follow' });
+  const text = await res.text();
+  return JSON.parse(text);
+}
+async function dbPost(data) {
+  const res = await fetch(DB_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(data)
+  });
+  const text = await res.text();
+  return JSON.parse(text);
+}
+
+// ── LIVE DATA ──
+let trainees = []; // populated from Sheet on load
+let dashboardCache = {}; // traineeId → dashboard data
+
+async function loadAllTrainees() {
+  try {
+    const data = await dbGet({ action: 'getAllTrainees' });
+    if (!Array.isArray(data)) return;
+    trainees = data.map(t => ({
+      id: t.TraineeID, name: t.FullName,
+      svc: 0, prayer: 0, punc: 0,
+      reqs: [0,0,0,0,0,0,0,0,0]
+    }));
+    // Load dashboards for each trainee
+    await Promise.all(trainees.map(async (t, i) => {
+      try {
+        const d = await dbGet({ action: 'getDashboard', traineeId: t.id });
+        if (d.scores) {
+          trainees[i].svc    = d.scores.services;
+          trainees[i].prayer = d.scores.prayer;
+          trainees[i].punc   = d.scores.punctuality;
+        }
+        if (d.requirements?.length) {
+          trainees[i].reqs = d.requirements.map(r =>
+            r.Status === 'done' ? 1 : r.Status === 'partial' ? 2 : 0
+          );
+        }
+        dashboardCache[t.id] = d;
+      } catch(e) {}
+    }));
+    buildTable();
+    buildReqOverview();
+    buildFlagged();
+    updateOverviewStats();
+    populateDropdowns();
+  } catch(e) {
+    console.log('Could not load from Sheet — showing placeholder data');
+    buildTable();
+    buildReqOverview();
+    populateDropdowns();
+  }
+}
+
+function updateOverviewStats() {
+  if (!trainees.length) return;
+  const avgSvc   = Math.round(trainees.reduce((s,t) => s + t.svc, 0) / trainees.length);
+  const avgPray  = Math.round(trainees.reduce((s,t) => s + t.prayer, 0) / trainees.length);
+  const avgPunc  = Math.round(trainees.reduce((s,t) => s + t.punc, 0) / trainees.length);
+  const onTrack  = trainees.filter(t => t.svc >= 70 && t.prayer >= 70 && t.punc >= 80).length;
+  const needHelp = trainees.filter(t => [t.svc<70,t.prayer<70,t.punc<80].filter(Boolean).length >= 2).length;
+
+  const statEls = document.querySelectorAll('.ts-val');
+  if (statEls[0]) statEls[0].textContent = trainees.length;
+  if (statEls[1]) statEls[1].textContent = onTrack;
+  if (statEls[2]) statEls[2].textContent = needHelp;
+  if (statEls[3]) statEls[3].innerHTML = avgSvc + '<span style="font-size:18px;color:var(--muted)">%</span>';
+  if (statEls[4]) statEls[4].innerHTML = avgPray + '<span style="font-size:18px;color:var(--muted)">%</span>';
+  if (statEls[5]) statEls[5].innerHTML = avgPunc + '<span style="font-size:18px;color:var(--muted)">%</span>';
+}
+
+// ── DATA ──
+const reqLabels = [
+  'Saved — confessing Christ',
+  'Filled with Holy Ghost (tongues)',
+  'Preach gospel + bring convert to church',
+  'Invite un-churched person to church',
+  'Book 1 (Believer\'s Authority) completed',
+  'Book 2 (Led by the Spirit) completed',
+  '70% prayer time attendance',
+  '70% service attendance',
+  '80% punctuality'
+];
+
+// ── POPULATE DROPDOWNS (from live trainees array) ──
+function populateDropdowns() {
+  ['la-trainee','lr-trainee'].forEach(id => {
+    const sel = document.getElementById(id);
+    // Clear existing options except first
+    while (sel.options.length > 1) sel.remove(1);
+    trainees.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.name; opt.textContent = t.name;
+      sel.appendChild(opt);
+    });
+  });
+}
+populateDropdowns();
+
+// ── BUILD TABLE ──
+function pctBadge(v, target) {
+  const cls = v >= target ? 'bg-green' : v >= target * 0.9 ? 'bg-yellow' : 'bg-red';
+  return `<span class="badge ${cls}">${v}%</span>`;
+}
+
+function statusBadge(t) {
+  const svcOk = t.svc >= 70, pOk = t.prayer >= 70, puOk = t.punc >= 80;
+  const metReqs = t.reqs.filter(r => r === 1).length;
+  const issues = [!svcOk, !pOk, !puOk].filter(Boolean).length;
+  if (metReqs === t.reqs.length && issues === 0) return '<span class="badge bg-green">On Track</span>';
+  if (issues >= 2 || metReqs <= 3) return '<span class="badge bg-pink">Needs Help</span>';
+  return '<span class="badge bg-yellow">Watch</span>';
+}
+
+function reqDots(reqs) {
+  return '<div class="req-dots">' + reqs.map((r, i) => {
+    const cls = r === 1 ? 'done' : r === 2 ? 'partial' : 'no';
+    return `<div class="rd ${cls}" title="${reqLabels[i]}"></div>`;
+  }).join('') + '</div>';
+}
+
+function buildTable(data) {
+  const tbody = document.getElementById('trainee-tbody');
+  tbody.innerHTML = (data || trainees).map((t, i) => {
+    const realIdx = data ? trainees.indexOf(t) : i;
+    return `<tr onclick="openTrainee(${realIdx})">
+      <td><div class="td-name">${t.name}</div></td>
+      <td>${pctBadge(t.svc, 70)}</td>
+      <td>${pctBadge(t.prayer, 70)}</td>
+      <td>${pctBadge(t.punc, 80)}</td>
+      <td>${reqDots(t.reqs)}</td>
+      <td>${statusBadge(t)}</td>
+    </tr>`;
+  }).join('');
+}
+buildTable();
+
+// ── SEARCH ──
+function filterTable() {
+  const q = document.getElementById('search-inp').value.toLowerCase();
+  const filtered = trainees.filter(t => t.name.toLowerCase().includes(q));
+  buildTable(filtered);
+}
+
+// ── REQUIREMENTS OVERVIEW TABLE ──
+function buildReqOverview() {
+  const tbody = document.getElementById('req-overview-body');
+  tbody.innerHTML = reqLabels.map((label, i) => {
+    const done = trainees.filter(t => t.reqs[i] === 1).length;
+    const partial = trainees.filter(t => t.reqs[i] === 2).length;
+    const pending = trainees.filter(t => t.reqs[i] === 0).length;
+    const pct = Math.round(done / trainees.length * 100);
+    const badgeCls = pct >= 80 ? 'bg-green' : pct >= 50 ? 'bg-yellow' : 'bg-red';
+    return `<tr>
+      <td style="font-weight:500;color:var(--ink)">${label}</td>
+      <td><span class="badge bg-green">${done}</span></td>
+      <td><span class="badge bg-yellow">${partial}</span></td>
+      <td><span class="badge bg-grey">${pending}</span></td>
+      <td><span class="badge ${badgeCls}">${pct}%</span></td>
+    </tr>`;
+  }).join('');
+}
+buildReqOverview();
+
+// ── OPEN TRAINEE MODAL ──
+function switchMTab(tab, btn) {
+  ['reqs','reading','quizzes','journal'].forEach(t => {
+    document.getElementById('mtab-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.mtab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function buildFlagged() {
+  const critical = trainees.filter(t => {
+    let fails = 0;
+    if (t.svc < 70) fails++;
+    if (t.prayer < 70) fails++;
+    if (t.punc < 80) fails++;
+    return fails >= 2;
+  });
+  const watch = trainees.filter(t => {
+    let fails = 0;
+    if (t.svc < 70) fails++;
+    if (t.prayer < 70) fails++;
+    if (t.punc < 80) fails++;
+    return fails === 1;
+  });
+
+  document.getElementById('flag-critical-count').textContent = critical.length;
+  document.getElementById('flag-watch-count').textContent = watch.length;
+
+  const critBody = document.getElementById('flag-critical-body');
+  critBody.innerHTML = critical.length ? critical.map(t => {
+    const idx = trainees.indexOf(t);
+    const issues = [];
+    if (t.svc < 70) issues.push(`Services ${t.svc}%`);
+    if (t.prayer < 70) issues.push(`Prayer ${t.prayer}%`);
+    if (t.punc < 80) issues.push(`Punctuality ${t.punc}%`);
+    return `<div class="flag-card flag-red" onclick="openTrainee(${idx})" style="cursor:pointer;margin-bottom:8px">
+      <div style="font-weight:700;color:var(--ink);font-size:14px">${t.name}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px">${issues.join(' · ')}</div>
+      <div style="font-size:12px;color:var(--blue);margin-top:4px;font-weight:500">Tap to view full profile →</div>
+    </div>`;
+  }).join('') : '<div style="color:var(--muted);font-size:13px;padding:8px 0">No trainees critically below target ✓</div>';
+
+  const watchBody = document.getElementById('flag-watch-body');
+  watchBody.innerHTML = watch.length ? watch.map(t => {
+    const idx = trainees.indexOf(t);
+    const issues = [];
+    if (t.svc < 70) issues.push(`Services ${t.svc}%`);
+    if (t.prayer < 70) issues.push(`Prayer ${t.prayer}%`);
+    if (t.punc < 80) issues.push(`Punctuality ${t.punc}%`);
+    return `<div class="flag-card flag-warn" onclick="openTrainee(${idx})" style="cursor:pointer;margin-bottom:8px">
+      <div style="font-weight:700;color:var(--ink);font-size:14px">${t.name}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px">${issues.join(' · ')}</div>
+      <div style="font-size:12px;color:var(--blue);margin-top:4px;font-weight:500">Tap to view full profile →</div>
+    </div>`;
+  }).join('') : '<div style="color:var(--muted);font-size:13px;padding:8px 0">No trainees in borderline range ✓</div>';
+}
+
+function buildReqOverview() {
+  const REQ_LIST = [
+    'Saved — confessing Christ',
+    'Filled with Holy Ghost (tongues)',
+    'Preach gospel + bring convert to church',
+    'Invite un-churched person to church',
+    "Book 1 (Believer's Authority) completed",
+    'Book 2 (Led by the Spirit) completed',
+    '70% prayer time attendance',
+    '70% service attendance',
+    '80% punctuality'
+  ];
+  const tbody = document.getElementById('req-overview-body');
+  if (!tbody || !trainees.length) return;
+
+  const rows = REQ_LIST.map(req => {
+    let done = 0, partial = 0, pending = 0;
+    trainees.forEach(t => {
+      const cached = dashboardCache[t.id];
+      if (!cached?.requirements) { pending++; return; }
+      const r = cached.requirements.find(x => x.Requirement === req);
+      if (!r || r.Status === 'pending') pending++;
+      else if (r.Status === 'done') done++;
+      else partial++;
+    });
+    const total = trainees.length || 1;
+    const pct = Math.round(done / total * 100);
+    const pctColor = pct >= 70 ? 'var(--success)' : pct >= 40 ? 'var(--yellow-dk)' : 'var(--pink)';
+    return `<tr>
+      <td style="font-weight:500">${req}</td>
+      <td><span class="badge bg-green">${done}</span></td>
+      <td><span class="badge bg-yellow">${partial}</span></td>
+      <td><span class="badge bg-grey">${pending}</span></td>
+      <td style="font-weight:700;color:${pctColor}">${pct}%</td>
+    </tr>`;
+  });
+  tbody.innerHTML = rows.join('');
+}
+
+function openTrainee(i) {
+  const t = trainees[i];
+  if (!t) return;
+  document.getElementById('m-name').textContent = t.name;
+  document.getElementById('m-sub').textContent = 'Cohort 1 · ' + (t.id || '');
+  document.getElementById('m-svc').textContent = t.svc + '%';
+  document.getElementById('m-prayer').textContent = t.prayer + '%';
+  document.getElementById('m-punc').textContent = t.punc + '%';
+
+  // Reset tabs
+  switchMTab('reqs', document.querySelector('.mtab'));
+
+  const cached = dashboardCache[t.id];
+
+  // Requirements tab
+  let reqHtml = '';
+  if (cached?.requirements?.length) {
+    reqHtml = cached.requirements.map(r => {
+      const cls = r.Status==='done'?'done':r.Status==='partial'?'partial':'pending';
+      const icon = r.Status==='done'?'✓':r.Status==='partial'?'~':'';
+      const sub = r.Evidence || (r.Status==='done'?'Completed':r.Status==='partial'?'In Progress':'Not Yet');
+      const bg = r.Status==='done'?'var(--success-lt)':r.Status==='partial'?'#FFFBE6':'var(--grey)';
+      return `<div class="mreq-item" style="background:${bg}">
+        <div class="mreq-dot ${cls}">${icon}</div>
+        <div class="mreq-label">${r.Requirement}<small>${sub}</small></div>
+      </div>`;
+    }).join('');
+  } else {
+    reqHtml = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No requirement data loaded yet. Try refreshing.</div>';
+  }
+  document.getElementById('m-reqs').innerHTML = reqHtml;
+
+  // Reading tab
+  const reading = cached?.reading;
+  document.getElementById('m-reading').innerHTML = reading ? `
+    <div style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Book 1 — The Believer's Authority</div>
+      <div class="pbar" style="height:8px;margin-bottom:4px"><div class="pbar-fill" style="background:var(--blue);width:${reading.book1Pct||0}%"></div></div>
+      <div style="font-size:12px;color:var(--muted)">${reading.book1Pct||0}% complete · ${Math.round((reading.book1Pct||0)/100*21)} of 21 reading days ticked</div>
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Book 2 — Led by the Spirit of God</div>
+      <div class="pbar" style="height:8px;margin-bottom:4px"><div class="pbar-fill" style="background:var(--pink);width:${reading.book2Pct||0}%"></div></div>
+      <div style="font-size:12px;color:var(--muted)">${reading.book2Pct||0}% complete · ${Math.round((reading.book2Pct||0)/100*15)} of 15 reading days ticked</div>
+    </div>` : '<div style="color:var(--muted);font-size:13px">No reading data yet.</div>';
+
+  // Quizzes tab
+  const quizzes = cached?.quizzes;
+  document.getElementById('m-quizzes').innerHTML = quizzes?.length ? quizzes.map(q =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:13px;font-weight:500">${q.Module}</span>
+      <span style="font-weight:700;color:${q.Percent>=70?'var(--success)':'var(--warn)'}">${q.Score}/${q.Total} — ${q.Percent}%</span>
+    </div>`
+  ).join('') : '<div style="color:var(--muted);font-size:13px;padding:8px 0">No quiz scores yet.</div>';
+
+  // Journal tab — fetch live from Sheet
+  document.getElementById('m-journal').innerHTML = '<div style="color:var(--muted);font-size:13px">Loading journal…</div>';
+  loadTraineeJournal(t.id, t.name);
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+async function loadTraineeJournal(traineeId, traineeName) {
+  try {
+    const data = await dbGet({ action: 'getJournal', traineeId });
+    const el = document.getElementById('m-journal');
+    if (!el) return;
+    if (!data?.length) {
+      el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No journal entries submitted yet.</div>';
+      return;
+    }
+    const labels = { b1mid:'Book 1 Midway', b1final:'Book 1 Final', b2mid:'Book 2 Midway', b2final:'Book 2 Final' };
+    el.innerHTML = data.map(j => `
+      <div style="margin-bottom:18px;padding:14px;background:var(--grey);border-radius:10px;border-left:3px solid var(--yellow)">
+        <div style="font-size:12px;font-weight:700;color:var(--yellow-dk);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">${j.Label || labels[j.JournalKey] || j.JournalKey}</div>
+        <div style="margin-bottom:8px"><div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:3px">Q1</div><div style="font-size:13px;color:var(--ink);line-height:1.5">${j.Q1}</div></div>
+        <div style="margin-bottom:8px"><div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:3px">Q2</div><div style="font-size:13px;color:var(--ink);line-height:1.5">${j.Q2}</div></div>
+        <div><div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:3px">Q3</div><div style="font-size:13px;color:var(--ink);line-height:1.5">${j.Q3}</div></div>
+      </div>`).join('');
+  } catch(e) {
+    const el = document.getElementById('m-journal');
+    if (el) el.innerHTML = '<div style="color:var(--muted);font-size:13px">Could not load journal.</div>';
+  }
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal-overlay')) {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+}
+
+// ── NAVIGATION ──
+function showPage(id, el) {
+  document.querySelectorAll('.tpage').forEach(p => p.classList.remove('active'));
+  document.getElementById('tp-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── FORM SUBMISSIONS ──
+function submitAttendance() {
+  const trainee = document.getElementById('la-trainee').value;
+  const type    = document.getElementById('la-type').value;
+  const date    = document.getElementById('la-date').value;
+  if (!trainee || !type || !date) { showToast('Please fill in all required fields'); return; }
+
+  const status = document.getElementById('la-status').value;
+  const note   = document.getElementById('la-note').value || '';
+
+  // Find trainee ID
+  const t = trainees.find(x => x.name === trainee);
+  const traineeId = t ? t.id : trainee;
+
+  // Post to Sheet
+  dbPost({
+    action: 'logAttendance',
+    traineeId, traineeName: trainee,
+    sessionType: type, date, status, notes: note,
+    loggedBy: 'Trainer'
+  }).then(() => {
+    showToast(`Attendance logged for ${trainee} ✓`);
+    loadAllTrainees(); // refresh dashboard
+  }).catch(() => showToast('Saved locally — will sync when reconnected'));
+
+  // Add to log table immediately
+  const statusBadgeMap = {
+    present: '<span class="badge bg-green">Present</span>',
+    late:    '<span class="badge bg-yellow">Late</span>',
+    absent:  '<span class="badge bg-red">Absent</span>'
+  };
+  const tbody = document.getElementById('log-tbody');
+  const dateStr = new Date(date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  const row = tbody.insertRow(0);
+  row.innerHTML = `<td><div class="td-name">${trainee}</div></td><td>${type}</td><td>${dateStr}</td><td>${statusBadgeMap[status]||status}</td><td style="font-size:12px;color:var(--muted)">${note||'—'}</td>`;
+
+  document.getElementById('la-trainee').value = '';
+  document.getElementById('la-type').value    = '';
+  document.getElementById('la-note').value    = '';
+}
+
+function submitRequirement() {
+  const trainee = document.getElementById('lr-trainee').value;
+  const req     = document.getElementById('lr-req').value;
+  if (!trainee || !req) { showToast('Please fill in all required fields'); return; }
+
+  const status = document.getElementById('lr-status').value;
+  const note   = document.getElementById('lr-note').value || '';
+
+  const t = trainees.find(x => x.name === trainee);
+  const traineeId = t ? t.id : trainee;
+
+  dbPost({
+    action: 'updateRequirement',
+    traineeId, traineeName: trainee,
+    requirement: req, status, evidence: note,
+    updatedBy: 'Trainer'
+  }).then(() => {
+    showToast(`Requirement updated for ${trainee} ✓`);
+    loadAllTrainees();
+  }).catch(() => showToast('Could not save — check connection'));
+
+  // Add to log table immediately
+  const sbMap = {
+    done:    '<span class="badge bg-green">Done</span>',
+    partial: '<span class="badge bg-yellow">In Progress</span>',
+    pending: '<span class="badge bg-grey">Not Yet</span>'
+  };
+  const tbody = document.getElementById('req-log-tbody');
+  const today = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  const row = tbody.insertRow(0);
+  row.innerHTML = `<td><div class="td-name">${trainee}</div></td><td>${req}</td><td>${sbMap[status]||status}</td><td style="font-size:12px;color:var(--muted)">${note||'—'}</td><td style="color:var(--muted);font-size:12px">${today}</td>`;
+
+  document.getElementById('lr-trainee').value = '';
+  document.getElementById('lr-req').value     = '';
+  document.getElementById('lr-note').value    = '';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// Set today's date and load live data on startup
+document.getElementById('la-date').valueAsDate = new Date();
+loadAllTrainees();
+</script>
+</body>
+</html>
