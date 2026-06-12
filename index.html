@@ -208,61 +208,50 @@ table.tt td{padding:12px 14px;vertical-align:middle}
       <div class="stats-grid">
         <div class="stat-card">
           <div class="sc-label">Total Trainees</div>
-          <div class="sc-val">12</div>
+          <div class="sc-val" id="ov-total">—</div>
           <div class="sc-sub">Active in cohort</div>
         </div>
         <div class="stat-card">
           <div class="sc-label">On Track</div>
-          <div class="sc-val" style="color:var(--success)">7</div>
+          <div class="sc-val" style="color:var(--success)" id="ov-ontrack">—</div>
           <div class="sc-sub">Meeting all targets</div>
         </div>
         <div class="stat-card">
           <div class="sc-label">Needs Attention</div>
-          <div class="sc-val" style="color:var(--pink)">3</div>
+          <div class="sc-val" style="color:var(--pink)" id="ov-flagged">—</div>
           <div class="sc-sub">Below 2+ targets</div>
         </div>
         <div class="stat-card">
           <div class="sc-label">Avg Services</div>
-          <div class="sc-val">74<span>%</span></div>
+          <div class="sc-val" id="ov-svc">—<span>%</span></div>
           <div class="sc-sub">Cohort average</div>
-          <div class="pbar"><div class="pbar-fill fg" style="width:74%"></div></div>
+          <div class="pbar"><div class="pbar-fill fg" id="ov-svc-bar" style="width:0%"></div></div>
         </div>
         <div class="stat-card">
           <div class="sc-label">Avg Prayer</div>
-          <div class="sc-val">61<span>%</span></div>
-          <div class="sc-sub">Below 70% target</div>
-          <div class="pbar"><div class="pbar-fill fw" style="width:61%"></div></div>
+          <div class="sc-val" id="ov-prayer">—<span>%</span></div>
+          <div class="sc-sub">Target 70%</div>
+          <div class="pbar"><div class="pbar-fill fw" id="ov-prayer-bar" style="width:0%"></div></div>
         </div>
         <div class="stat-card">
           <div class="sc-label">Avg Punctuality</div>
-          <div class="sc-val">79<span>%</span></div>
-          <div class="sc-sub">Close to 80% target</div>
-          <div class="pbar"><div class="pbar-fill fy" style="width:79%"></div></div>
+          <div class="sc-val" id="ov-punc">—<span>%</span></div>
+          <div class="sc-sub">Target 80%</div>
+          <div class="pbar"><div class="pbar-fill fy" id="ov-punc-bar" style="width:0%"></div></div>
         </div>
       </div>
 
       <div class="two-col">
         <div class="card" style="margin-bottom:0">
           <div class="card-title">Requirements Progress</div>
-          <div style="font-size:13px;display:flex;flex-direction:column;gap:10px">
-            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--ink);font-weight:500">Saved</span><span style="font-weight:700;color:var(--success)">12/12</span></div><div class="pbar"><div class="pbar-fill fg" style="width:100%"></div></div></div>
-            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--ink);font-weight:500">Filled with Holy Ghost</span><span style="font-weight:700;color:var(--success)">11/12</span></div><div class="pbar"><div class="pbar-fill fg" style="width:92%"></div></div></div>
-            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--ink);font-weight:500">Gospel conversation logged</span><span style="font-weight:700;color:var(--yellow-dk)">8/12</span></div><div class="pbar"><div class="pbar-fill fy" style="width:67%"></div></div></div>
-            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--ink);font-weight:500">Convert brought to church</span><span style="font-weight:700;color:var(--pink)">3/12</span></div><div class="pbar"><div class="pbar-fill fp" style="width:25%"></div></div></div>
-            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--ink);font-weight:500">Un-churched person invited</span><span style="font-weight:700;color:var(--pink)">4/12</span></div><div class="pbar"><div class="pbar-fill fp" style="width:33%"></div></div></div>
-            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--ink);font-weight:500">Reading texts completed</span><span style="font-weight:700;color:var(--yellow-dk)">5/12</span></div><div class="pbar"><div class="pbar-fill fy" style="width:42%"></div></div></div>
+          <div id="ov-req-progress" style="font-size:13px;display:flex;flex-direction:column;gap:10px">
+            <div style="color:var(--muted);font-size:13px">Loading…</div>
           </div>
         </div>
 
         <div class="card" style="margin-bottom:0">
-          <div class="card-title">Month 1 Insight</div>
-          <div style="background:var(--yellow-lt);border:1px solid rgba(245,200,0,0.35);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--ink);line-height:1.7;margin-bottom:14px">
-            Service attendance is <strong>on track</strong> for most trainees. The biggest gap is <strong>prayer time attendance</strong> at 61% — below the 70% target. Gospel engagement (bringing converts + inviting un-churched) needs active coaching. Recommend dedicating 10 minutes of Tuesday class to accountability check-ins.
-          </div>
-          <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px">Flagged This Week</div>
-          <div class="flag-card flag-red"><div style="font-weight:600;color:var(--ink);font-size:13px">Chidi Okafor</div><div style="font-size:12px;color:var(--muted)">Prayer: 38% · Services: 55%</div></div>
-          <div class="flag-card flag-red"><div style="font-weight:600;color:var(--ink);font-size:13px">Amaka Eze</div><div style="font-size:12px;color:var(--muted)">Punctuality: 52% · Prayer: 44%</div></div>
-          <div class="flag-card flag-warn"><div style="font-weight:600;color:var(--ink);font-size:13px">Tunde Balogun</div><div style="font-size:12px;color:var(--muted)">Reading behind · No gospel log</div></div>
+          <div class="card-title">Flagged This Week</div>
+          <div id="ov-flagged-list"><div style="color:var(--muted);font-size:13px">Loading…</div></div>
         </div>
       </div>
     </div>
@@ -395,11 +384,7 @@ table.tt td{padding:12px 14px;vertical-align:middle}
           <table class="tt" style="min-width:500px">
             <thead><tr><th>Trainee</th><th>Session</th><th>Date</th><th>Status</th><th>Note</th></tr></thead>
             <tbody id="log-tbody">
-              <tr><td><div class="td-name">Funmi Adeyemi</div></td><td>Sunday Service</td><td>8 Jun 2026</td><td><span class="badge bg-green">Present</span></td><td style="color:var(--muted)">—</td></tr>
-              <tr><td><div class="td-name">Ngozi Ibe</div></td><td>Morning Prayer</td><td>7 Jun 2026</td><td><span class="badge bg-green">Present</span></td><td style="color:var(--muted)">—</td></tr>
-              <tr><td><div class="td-name">Chidi Okafor</div></td><td>Friday Immerse</td><td>6 Jun 2026</td><td><span class="badge bg-red">Absent</span></td><td style="color:var(--muted)">No notice</td></tr>
-              <tr><td><div class="td-name">Amaka Eze</div></td><td>Tuesday Service</td><td>3 Jun 2026</td><td><span class="badge bg-yellow">Late</span></td><td style="color:var(--muted)">30 mins late</td></tr>
-              <tr><td><div class="td-name">Blessing Nwosu</div></td><td>Morning Prayer</td><td>3 Jun 2026</td><td><span class="badge bg-green">Present</span></td><td style="color:var(--muted)">—</td></tr>
+
             </tbody>
           </table>
         </div>
@@ -464,9 +449,7 @@ table.tt td{padding:12px 14px;vertical-align:middle}
           <table class="tt" style="min-width:500px">
             <thead><tr><th>Trainee</th><th>Requirement</th><th>Status</th><th>Note</th><th>Updated</th></tr></thead>
             <tbody id="req-log-tbody">
-              <tr><td><div class="td-name">Ngozi Ibe</div></td><td>Convert brought to church</td><td><span class="badge bg-green">Done</span></td><td style="font-size:12px;color:var(--muted)">Attended Sun 1 Jun</td><td style="color:var(--muted);font-size:12px">2 Jun 2026</td></tr>
-              <tr><td><div class="td-name">Funmi Adeyemi</div></td><td>Gospel conversation logged</td><td><span class="badge bg-green">Done</span></td><td style="font-size:12px;color:var(--muted)">Neighbour conversation</td><td style="color:var(--muted);font-size:12px">28 May 2026</td></tr>
-              <tr><td><div class="td-name">Blessing Nwosu</div></td><td>Book 1 completed</td><td><span class="badge bg-yellow">In Progress</span></td><td style="font-size:12px;color:var(--muted)">On chapter 4</td><td style="color:var(--muted);font-size:12px">25 May 2026</td></tr>
+<tr><td colspan="5" style="text-align:center;color:var(--muted);font-size:13px;padding:16px">No updates yet — use the form above to log requirements.</td></tr>
             </tbody>
           </table>
         </div>
@@ -592,19 +575,71 @@ async function loadAllTrainees() {
 
 function updateOverviewStats() {
   if (!trainees.length) return;
-  const avgSvc   = Math.round(trainees.reduce((s,t) => s + t.svc, 0) / trainees.length);
-  const avgPray  = Math.round(trainees.reduce((s,t) => s + t.prayer, 0) / trainees.length);
-  const avgPunc  = Math.round(trainees.reduce((s,t) => s + t.punc, 0) / trainees.length);
+  const n = trainees.length;
+  const avgSvc   = Math.round(trainees.reduce((s,t) => s + t.svc, 0) / n);
+  const avgPray  = Math.round(trainees.reduce((s,t) => s + t.prayer, 0) / n);
+  const avgPunc  = Math.round(trainees.reduce((s,t) => s + t.punc, 0) / n);
   const onTrack  = trainees.filter(t => t.svc >= 70 && t.prayer >= 70 && t.punc >= 80).length;
-  const needHelp = trainees.filter(t => [t.svc<70,t.prayer<70,t.punc<80].filter(Boolean).length >= 2).length;
+  const needHelp = trainees.filter(t => [t.svc<70, t.prayer<70, t.punc<80].filter(Boolean).length >= 2).length;
 
-  const statEls = document.querySelectorAll('.ts-val');
-  if (statEls[0]) statEls[0].textContent = trainees.length;
-  if (statEls[1]) statEls[1].textContent = onTrack;
-  if (statEls[2]) statEls[2].textContent = needHelp;
-  if (statEls[3]) statEls[3].innerHTML = avgSvc + '<span style="font-size:18px;color:var(--muted)">%</span>';
-  if (statEls[4]) statEls[4].innerHTML = avgPray + '<span style="font-size:18px;color:var(--muted)">%</span>';
-  if (statEls[5]) statEls[5].innerHTML = avgPunc + '<span style="font-size:18px;color:var(--muted)">%</span>';
+  // Stat cards
+  const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  const setBar = (id, pct) => { const el = document.getElementById(id); if(el) el.style.width = pct + '%'; };
+  set('ov-total',   n);
+  set('ov-ontrack', onTrack);
+  set('ov-flagged', needHelp);
+  set('ov-svc',     avgSvc);   setBar('ov-svc-bar',   avgSvc);
+  set('ov-prayer',  avgPray);  setBar('ov-prayer-bar', avgPray);
+  set('ov-punc',    avgPunc);  setBar('ov-punc-bar',   avgPunc);
+
+  // Requirements progress snapshot on overview
+  const REQ_SNAPSHOT = [
+    "Saved — confessing Christ",
+    "Filled with Holy Ghost (tongues)",
+    "Preach gospel + bring convert to church",
+    "Invite un-churched person to church",
+    "Book 1 (Believer's Authority) completed",
+    "Book 2 (Led by the Spirit) completed"
+  ];
+  const reqEl = document.getElementById('ov-req-progress');
+  if (reqEl) {
+    reqEl.innerHTML = REQ_SNAPSHOT.map(req => {
+      let done = 0;
+      trainees.forEach(t => {
+        const cached = dashboardCache[t.id];
+        if (!cached?.requirements) return;
+        const r = cached.requirements.find(x => x.Requirement === req);
+        if (r?.Status === 'done') done++;
+      });
+      const pct = n > 0 ? Math.round(done / n * 100) : 0;
+      const col = pct >= 70 ? 'fg' : pct >= 40 ? 'fy' : 'fp';
+      const label = req.length > 35 ? req.substring(0,35) + '…' : req;
+      return `<div><div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="color:var(--ink);font-weight:500;font-size:12px">${label}</span>
+        <span style="font-weight:700;font-size:12px;color:var(--ink)">${done}/${n}</span>
+      </div><div class="pbar"><div class="pbar-fill ${col}" style="width:${pct}%"></div></div></div>`;
+    }).join('');
+  }
+
+  // Flagged snapshot on overview
+  const flagEl = document.getElementById('ov-flagged-list');
+  if (flagEl) {
+    const critical = trainees.filter(t => [t.svc<70,t.prayer<70,t.punc<80].filter(Boolean).length >= 2);
+    if (critical.length) {
+      flagEl.innerHTML = critical.map(t => {
+        const issues = [];
+        if (t.svc < 70) issues.push(`Services ${t.svc}%`);
+        if (t.prayer < 70) issues.push(`Prayer ${t.prayer}%`);
+        if (t.punc < 80) issues.push(`Punctuality ${t.punc}%`);
+        return `<div class="flag-card flag-red" onclick="openTrainee(${trainees.indexOf(t)})" style="cursor:pointer;margin-bottom:6px">
+          <div style="font-weight:600;color:var(--ink);font-size:13px">${t.name}</div>
+          <div style="font-size:12px;color:var(--muted)">${issues.join(' · ')}</div>
+        </div>`;
+      }).join('');
+    } else {
+      flagEl.innerHTML = '<div style="color:var(--success);font-size:13px;padding:6px 0">✓ No trainees critically below target</div>';
+    }
+  }
 }
 
 // ── DATA ──
