@@ -153,6 +153,41 @@ table.tt td{padding:12px 14px;vertical-align:middle}
 .mtab.active { color:var(--ink); border-bottom-color:var(--yellow); }
 .mreq-label small { display:block; font-size:11px; color:var(--muted); font-weight:400; margin-top:1px; }
 
+/* ── CALENDAR ── */
+.tcal-grid-hd{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.tcal-grid-hd div{font-size:10px;font-weight:700;text-align:center;color:var(--muted);padding:6px 0;text-transform:uppercase;letter-spacing:1px}
+.tcal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.tcal-day{min-height:52px;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:6px;cursor:pointer;transition:all 0.15s}
+.tcal-day:hover{border-color:var(--yellow)}
+.tcal-day.other-month{opacity:0.4}
+.tcal-day.today{border-color:var(--yellow);border-width:2px}
+.tcal-day.has-event{background:var(--yellow-lt)}
+.tcal-day .tday-num{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.tcal-event-dot{font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dot-p{background:#E8F5EE;color:#1A9E6A}
+.dot-v{background:var(--blue-lt);color:var(--blue)}
+.dot-s{background:var(--yellow-lt);color:var(--yellow-dk)}
+.tcal-week-card{background:var(--white);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.tcal-week-hd{padding:14px 18px;display:flex;align-items:center;gap:12px}
+.tcal-week-cur{border-color:var(--yellow);border-width:2px}
+.tcal-week-cur .tcal-week-hd{background:var(--yellow-lt)}
+.tcal-sessions{border-top:1px solid var(--border)}
+.tcal-session{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--border)}
+.tcal-session:last-child{border-bottom:none}
+.tcal-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+/* ── BULK ATTENDANCE ── */
+.bulk-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--white);border:1px solid var(--border);border-radius:10px}
+.bulk-name{flex:1;font-size:13px;font-weight:600;color:var(--ink)}
+.bulk-sel{font-size:12px;padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;color:var(--ink);background:var(--grey);outline:none;cursor:pointer}
+/* ── PENDING CONFIRM ── */
+.pending-row{padding:12px 14px;background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.pending-info{font-size:13px;color:var(--ink);margin-bottom:6px}
+.pending-info strong{font-weight:700}
+.pending-info span{color:var(--muted);font-size:12px}
+.pending-actions{display:flex;gap:8px}
+.btn-confirm{padding:5px 12px;font-size:12px;font-weight:700;background:#E8F5EE;color:#1A9E6A;border:1px solid #1A9E6A;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-override{padding:5px 12px;font-size:12px;font-weight:700;background:var(--yellow-lt);color:var(--yellow-dk);border:1px solid var(--yellow-dk);border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif}
+
 /* ── TOAST ── */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--black);color:var(--white);padding:10px 22px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transition:all 0.3s;z-index:500;white-space:nowrap;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -185,12 +220,14 @@ table.tt td{padding:12px 14px;vertical-align:middle}
     <div class="nav-section">Overview</div>
     <div class="nav-item active" onclick="showPage('overview',this)"><span class="ni">⬡</span> Overview</div>
     <div class="nav-item" onclick="showPage('flagged',this)"><span class="ni">⚑</span> Flagged</div>
+    <div class="nav-item" onclick="showPage('calendar',this)"><span class="ni">◫</span> Calendar</div>
 
     <div class="nav-section">Trainees</div>
     <div class="nav-item" onclick="showPage('trainees',this)"><span class="ni">◎</span> All Trainees</div>
     <div class="nav-item" onclick="showPage('requirements',this)"><span class="ni">◈</span> Requirements</div>
 
     <div class="nav-section">Logging</div>
+    <div class="nav-item" onclick="showPage('confirm-attendance',this)"><span class="ni">✓</span> Confirm Attendance</div>
     <div class="nav-item" onclick="showPage('log-attendance',this)"><span class="ni">◇</span> Log Attendance</div>
     <div class="nav-item" onclick="showPage('log-requirements',this)"><span class="ni">✦</span> Update Requirements</div>
   </nav>
@@ -453,6 +490,89 @@ table.tt td{padding:12px 14px;vertical-align:middle}
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    </div>
+
+    <!-- ── CALENDAR ── -->
+    <div class="tpage" id="tp-calendar">
+      <div class="ph">
+        <h1>Programme Calendar</h1>
+        <p>All sessions with real dates. Switch between programme and monthly view.</p>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:18px">
+        <button class="btn btn-yellow" id="tcal-btn-prog" onclick="trainerCalView('prog',this)" style="font-size:12px;padding:8px 16px">Programme View</button>
+        <button class="btn btn-outline" id="tcal-btn-month" onclick="trainerCalView('month',this)" style="font-size:12px;padding:8px 16px">Monthly View</button>
+      </div>
+
+      <!-- Programme view -->
+      <div id="tcal-prog">
+        <div id="tcal-prog-content"></div>
+      </div>
+
+      <!-- Monthly view -->
+      <div id="tcal-month" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <button class="btn btn-outline" style="font-size:12px;padding:7px 14px" onclick="tChangeMonth(-1)">← Prev</button>
+          <div id="tcal-month-label" style="font-size:15px;font-weight:800;color:var(--ink)"></div>
+          <button class="btn btn-outline" style="font-size:12px;padding:7px 14px" onclick="tChangeMonth(1)">Next →</button>
+        </div>
+        <div class="tcal-grid-hd">
+          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+        </div>
+        <div id="tcal-grid" class="tcal-grid"></div>
+        <div id="tcal-event-detail" style="display:none;margin-top:14px;padding:14px 16px;background:var(--white);border:2px solid var(--yellow);border-radius:12px">
+          <div id="tcal-event-title" style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px"></div>
+          <div id="tcal-event-sub" style="font-size:12px;color:var(--muted)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONFIRM ATTENDANCE ── -->
+    <div class="tpage" id="tp-confirm-attendance">
+      <div class="ph">
+        <h1>Confirm Attendance</h1>
+        <p>Review self-reported attendance from trainees and confirm or override each record.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Pending Confirmations <span class="badge bg-yellow" id="pending-count">Loading…</span></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">These records were logged by trainees and are awaiting your confirmation. Confirm to count them, or override to correct the status.</p>
+        <div id="pending-list"><div style="color:var(--muted);font-size:13px;padding:8px 0">Loading from Google Sheets…</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Bulk Log — Session Attendance</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Log attendance for an entire session at once — faster than doing trainees one by one.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Session</label>
+            <select class="form-sel" id="bulk-session">
+              <option value="">Select session…</option>
+              <optgroup label="Training Classes">
+                <option>Physical Class (Sunday)</option>
+                <option>Virtual Class (Wednesday)</option>
+              </optgroup>
+              <optgroup label="Services">
+                <option>Sunday Service</option>
+                <option>Tuesday Service</option>
+                <option>Friday Immerse</option>
+              </optgroup>
+              <optgroup label="Prayer">
+                <option>Morning Prayer</option>
+                <option>Night Prayer</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" class="form-inp" id="bulk-date">
+          </div>
+        </div>
+        <div id="bulk-trainee-list" style="margin:14px 0;display:flex;flex-direction:column;gap:8px"></div>
+        <button class="btn btn-yellow" onclick="submitBulkAttendance()" style="margin-top:4px">Save All ✓</button>
       </div>
     </div>
 
@@ -929,6 +1049,8 @@ function showPage(id, el) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (el) el.classList.add('active');
   window.scrollTo(0, 0);
+  if (id === 'calendar') { buildTrainerCalendar(); tRenderMonth(_tCalYear, _tCalMonth); }
+  if (id === 'confirm-attendance') { loadPendingAttendance(); buildBulkRows(); document.getElementById('bulk-date').valueAsDate = new Date(); }
 }
 
 // ── FORM SUBMISSIONS ──
@@ -1007,6 +1129,253 @@ function submitRequirement() {
   document.getElementById('lr-trainee').value = '';
   document.getElementById('lr-req').value     = '';
   document.getElementById('lr-note').value    = '';
+}
+
+// ── PROGRAMME EVENTS ──
+const PROG_EVENTS = [
+  { date:'2026-07-05', type:'s', title:'Orientation',          sub:'9:00–11:00am · Church Venue', week:0 },
+  { date:'2026-07-12', type:'p', title:'Module 1 A&B',         sub:'Physical · 9:00–11:00am · Church', week:1 },
+  { date:'2026-07-15', type:'v', title:'Module 1 C&D',         sub:'Virtual · 8:00–10:00pm', week:1 },
+  { date:'2026-07-19', type:'p', title:'Module 2 A&B',         sub:'Physical · 9:00–11:00am · Church', week:2 },
+  { date:'2026-07-22', type:'v', title:'Module 2 C&D',         sub:'Virtual · 8:00–10:00pm', week:2 },
+  { date:'2026-07-26', type:'p', title:'Module 3 A&B',         sub:'Physical · 9:00–11:00am · Church', week:3 },
+  { date:'2026-07-29', type:'v', title:'Module 3 C',           sub:'Virtual · 8:00–10:00pm', week:3 },
+  { date:'2026-08-02', type:'p', title:'Module 4 A&B',         sub:'Physical · 9:00–11:00am · Church', week:4 },
+  { date:'2026-08-05', type:'v', title:'Module 4 B&C',         sub:'Virtual · 8:00–10:00pm', week:4 },
+  { date:'2026-08-09', type:'p', title:'Module 5 A&B',         sub:'Physical · 9:00–11:00am · Church', week:5 },
+  { date:'2026-08-12', type:'v', title:'Module 5 C',           sub:'Virtual · 8:00–10:00pm', week:5 },
+  { date:'2026-08-16', type:'p', title:'Module 6 A&B',         sub:'Physical · 9:00–11:00am · Church', week:6 },
+  { date:'2026-08-19', type:'v', title:'Module 6 C',           sub:'Virtual · 8:00–10:00pm', week:6 },
+  { date:'2026-08-23', type:'s', title:'⭐ Midway Review',     sub:'Physical · 9:00–11:00am · Church', week:7 },
+  { date:'2026-08-26', type:'v', title:'Open Q&A',             sub:'Virtual · 8:00–10:00pm', week:7 },
+  { date:'2026-08-30', type:'p', title:'Deep Dive Mod 1&2',   sub:'Physical · 9:00–11:00am · Church', week:8 },
+  { date:'2026-09-02', type:'v', title:'Deep Dive Mod 3&4',   sub:'Virtual · 8:00–10:00pm', week:8 },
+  { date:'2026-09-06', type:'p', title:'Deep Dive Mod 5&6',   sub:'Physical · 9:00–11:00am · Church', week:9 },
+  { date:'2026-09-09', type:'v', title:'Reading Consolidation',sub:'Virtual · 8:00–10:00pm', week:9 },
+  { date:'2026-09-13', type:'p', title:'Service Team Orientation',sub:'Physical · 9:00–11:00am · Church', week:10 },
+  { date:'2026-09-16', type:'v', title:'Final Requirements Check',sub:'Virtual · 8:00–10:00pm', week:10 },
+  { date:'2026-09-20', type:'p', title:'What Has God Been Saying?',sub:'Physical · 9:00–11:00am · Church', week:11 },
+  { date:'2026-09-23', type:'v', title:'Final Submissions',    sub:'Virtual · 8:00–10:00pm', week:11 },
+  { date:'2026-09-27', type:'s', title:'✦ Completion & Commissioning', sub:'Physical · 9:00–11:00am · Church', week:12 },
+];
+
+const WEEK_DATES_T = {
+  0:'Sun 5 Jul — Orientation',
+  1:'Sun 12 – Wed 15 Jul', 2:'Sun 19 – Wed 22 Jul',
+  3:'Sun 26 – Wed 29 Jul',  4:'Sun 2 – Wed 5 Aug',
+  5:'Sun 9 – Wed 12 Aug',  6:'Sun 16 – Wed 19 Aug',
+  7:'Sun 23 – Wed 26 Aug', 8:'Sun 30 Aug – Wed 2 Sep',
+  9:'Sun 6 – Wed 9 Sep',  10:'Sun 13 – Wed 16 Sep',
+  11:'Sun 20 – Wed 23 Sep',12:'Sun 27 Sep',
+};
+
+const WEEK_MODS_T = {
+  0:'Orientation', 1:'Module 1', 2:'Module 2', 3:'Module 3',
+  4:'Module 4', 5:'Module 5', 6:'Module 6', 7:'Midway Review',
+  8:'Deep Dives', 9:'Deep Dives + Reading', 10:'Service Teams',
+  11:'Wind Down', 12:'✦ Completion'
+};
+
+let _tCalMonth = new Date().getMonth();
+let _tCalYear  = new Date().getFullYear();
+
+function trainerCalView(view, btn) {
+  document.getElementById('tcal-prog').style.display  = view==='prog'  ? 'block' : 'none';
+  document.getElementById('tcal-month').style.display = view==='month' ? 'block' : 'none';
+  document.getElementById('tcal-btn-prog').className  = view==='prog'  ? 'btn btn-yellow' : 'btn btn-outline';
+  document.getElementById('tcal-btn-month').className = view==='month' ? 'btn btn-yellow' : 'btn btn-outline';
+  if (view==='month') tRenderMonth(_tCalYear, _tCalMonth);
+}
+
+function buildTrainerCalendar() {
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  const byWeek = {};
+  PROG_EVENTS.forEach(e => { if(!byWeek[e.week]) byWeek[e.week]=[]; byWeek[e.week].push(e); });
+  const todayDate = new Date(todayStr);
+
+  let html = '';
+  Object.keys(byWeek).sort((a,b)=>+a-+b).forEach(wk => {
+    const w = parseInt(wk);
+    // Determine if current, past, future
+    const wEvents = byWeek[wk];
+    const lastDate = new Date(wEvents[wEvents.length-1].date);
+    const firstDate = new Date(wEvents[0].date);
+    const isCur = todayDate >= firstDate && todayDate <= lastDate;
+    const isPast = todayDate > lastDate;
+
+    const badgeStyle = isCur ? 'background:var(--yellow);color:#111' : isPast ? 'background:#E8F5EE;color:#1A9E6A' : 'background:#F0EDEA;color:#888';
+    const badgeTxt  = isCur ? 'Current' : isPast ? 'Done ✓' : 'Upcoming';
+
+    html += `<div class="tcal-week-card${isCur?' tcal-week-cur':''}">
+      <div class="tcal-week-hd">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:700;min-width:72px">${w===0?'Orientation':'Week '+w}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:800;color:var(--ink)">${WEEK_DATES_T[w]||''}</div>
+          <div style="font-size:12px;color:var(--muted)">${WEEK_MODS_T[w]||''}</div>
+        </div>
+        <div style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;${badgeStyle}">${badgeTxt}</div>
+      </div>
+      <div class="tcal-sessions">`;
+
+    wEvents.forEach(e => {
+      const d = new Date(e.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+      const dotCls = e.type==='p'?'dot-p':e.type==='v'?'dot-v':'dot-s';
+      const typeLbl = e.type==='p'?'Physical':e.type==='v'?'Virtual':'Special';
+      html += `<div class="tcal-session">
+        <div class="tcal-dot ${dotCls}"></div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:var(--ink)">${e.title}</div>
+          <div style="font-size:11px;color:var(--muted)">${e.sub}</div>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-align:right">${d}</div>
+      </div>`;
+    });
+    html += '</div></div>';
+  });
+  const cont = document.getElementById('tcal-prog-content');
+  if (cont) cont.innerHTML = html;
+}
+
+function tRenderMonth(year, month) {
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('tcal-month-label').textContent = months[month]+' '+year;
+  const firstDay = new Date(year,month,1).getDay();
+  const daysInMonth = new Date(year,month+1,0).getDate();
+  const today = new Date();
+  const eventMap = {};
+  PROG_EVENTS.forEach(e=>{ if(!eventMap[e.date]) eventMap[e.date]=[]; eventMap[e.date].push(e); });
+  let html='';
+  for(let i=0;i<firstDay;i++) html+='<div class="tcal-day other-month"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday=today.getFullYear()===year&&today.getMonth()===month&&today.getDate()===d;
+    const evs=eventMap[ds]||[];
+    html+=`<div class="tcal-day${isToday?' today':''}${evs.length?' has-event':''}" onclick="tShowDay('${ds}')">
+      <div class="tday-num">${d}</div>`;
+    evs.forEach(e=>{
+      const cls=e.type==='p'?'dot-p':e.type==='v'?'dot-v':'dot-s';
+      const short=e.title.length>10?e.title.substring(0,10)+'…':e.title;
+      html+=`<div class="tcal-event-dot ${cls}">${short}</div>`;
+    });
+    html+='</div>';
+  }
+  document.getElementById('tcal-grid').innerHTML=html;
+  document.getElementById('tcal-event-detail').style.display='none';
+}
+
+function tShowDay(ds) {
+  const evs=PROG_EVENTS.filter(e=>e.date===ds);
+  const det=document.getElementById('tcal-event-detail');
+  if(!evs.length){det.style.display='none';return;}
+  document.getElementById('tcal-event-title').textContent=evs.map(e=>e.title).join(' · ');
+  document.getElementById('tcal-event-sub').textContent=evs.map(e=>e.sub).join(' | ');
+  det.style.display='block';
+}
+
+function tChangeMonth(dir){
+  _tCalMonth+=dir;
+  if(_tCalMonth>11){_tCalMonth=0;_tCalYear++;}
+  if(_tCalMonth<0){_tCalMonth=11;_tCalYear--;}
+  tRenderMonth(_tCalYear,_tCalMonth);
+}
+
+// ── CONFIRM ATTENDANCE ──
+let _pendingAtt = [];
+
+async function loadPendingAttendance() {
+  try {
+    const data = await dbGet({ action:'getPendingAttendance' });
+    _pendingAtt = Array.isArray(data) ? data : [];
+    renderPendingAttendance();
+  } catch(e) {
+    document.getElementById('pending-list').innerHTML = '<div style="color:var(--muted);font-size:13px">Could not load — check connection.</div>';
+  }
+}
+
+function renderPendingAttendance() {
+  const el = document.getElementById('pending-list');
+  const countEl = document.getElementById('pending-count');
+  if (!el) return;
+  const pending = _pendingAtt.filter(a => a.Notes && a.Notes.includes('[self-reported]'));
+  if (countEl) countEl.textContent = pending.length + ' pending';
+  if (!pending.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No pending confirmations ✓</div>';
+    return;
+  }
+  el.innerHTML = pending.map((a,i) => {
+    const d = new Date(a.Date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+    return `<div class="pending-row">
+      <div class="pending-info">
+        <strong>${a.TraineeName}</strong> — ${a.SessionType}
+        <span> · ${d} · Self-reported</span>
+      </div>
+      <div class="pending-actions">
+        <button class="btn-confirm" onclick="confirmAtt(${i},'present')">✓ Confirm</button>
+        <button class="btn-override" onclick="confirmAtt(${i},'late')">Late</button>
+        <button class="btn-override" style="background:#FDE8F2;color:#880E4F;border-color:#880E4F" onclick="confirmAtt(${i},'absent')">Absent</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function confirmAtt(idx, status) {
+  const att = _pendingAtt.filter(a => a.Notes && a.Notes.includes('[self-reported]'))[idx];
+  if (!att) return;
+  try {
+    await dbPost({
+      action:'logAttendance', traineeId:att.TraineeID, traineeName:att.TraineeName,
+      sessionType:att.SessionType, date:att.Date, status,
+      notes:'Trainer confirmed', loggedBy:'Trainer'
+    });
+    showToast(`${att.TraineeName} — ${att.SessionType} ${status} ✓`);
+    await loadPendingAttendance();
+  } catch(e) { showToast('Could not save — check connection'); }
+}
+
+// ── BULK ATTENDANCE ──
+function buildBulkRows() {
+  const el = document.getElementById('bulk-trainee-list');
+  if (!el || !trainees.length) return;
+  el.innerHTML = trainees.map((t,i) => `
+    <div class="bulk-row">
+      <div class="bulk-name">${t.name}</div>
+      <select class="bulk-sel" id="bulk-status-${i}">
+        <option value="present">Present</option>
+        <option value="late">Late</option>
+        <option value="absent">Absent</option>
+      </select>
+    </div>`).join('');
+}
+
+async function submitBulkAttendance() {
+  const session = document.getElementById('bulk-session').value;
+  const date    = document.getElementById('bulk-date').value;
+  if (!session || !date) { showToast('Please select a session and date.'); return; }
+
+  let saved = 0;
+  for (let i = 0; i < trainees.length; i++) {
+    const t = trainees[i];
+    const status = document.getElementById('bulk-status-' + i)?.value || 'present';
+    try {
+      await dbPost({
+        action:'logAttendance', traineeId:t.id, traineeName:t.name,
+        sessionType:session, date, status, notes:'Bulk log', loggedBy:'Trainer'
+      });
+      saved++;
+    } catch(e) {}
+  }
+  showToast(`${saved} attendance records saved ✓`);
+
+  // Add to recent log table
+  const tbody = document.getElementById('log-tbody');
+  const dateStr = new Date(date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  const statusMap = {present:'<span class="badge bg-green">Present</span>',late:'<span class="badge bg-yellow">Late</span>',absent:'<span class="badge bg-red">Absent</span>'};
+  trainees.forEach((t,i) => {
+    const status = document.getElementById('bulk-status-'+i)?.value||'present';
+    const row = tbody.insertRow(0);
+    row.innerHTML = `<td><div class="td-name">${t.name}</div></td><td>${session}</td><td>${dateStr}</td><td>${statusMap[status]||status}</td><td style="color:var(--muted);font-size:12px">Bulk log</td>`;
+  });
 }
 
 function showToast(msg) {
