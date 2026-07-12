@@ -493,8 +493,6 @@ table.tt td{padding:12px 14px;vertical-align:middle}
       </div>
     </div>
 
-    </div>
-
     <!-- ── CALENDAR ── -->
     <div class="tpage" id="tp-calendar">
       <div class="ph">
@@ -1284,12 +1282,21 @@ function tChangeMonth(dir){
 let _pendingAtt = [];
 
 async function loadPendingAttendance() {
+  const el = document.getElementById('pending-list');
+  const countEl = document.getElementById('pending-count');
+  if (el) el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">Loading…</div>';
   try {
     const data = await dbGet({ action:'getPendingAttendance' });
-    _pendingAtt = Array.isArray(data) ? data : [];
+    if (!Array.isArray(data)) {
+      if (el) el.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:8px 0">Unexpected response from server. Check Apps Script is deployed with getPendingAttendance.</div>`;
+      if (countEl) countEl.textContent = 'error';
+      return;
+    }
+    _pendingAtt = data;
     renderPendingAttendance();
   } catch(e) {
-    document.getElementById('pending-list').innerHTML = '<div style="color:var(--muted);font-size:13px">Could not load — check connection.</div>';
+    if (el) el.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:8px 0">Could not connect to Google Sheets. Error: ${e.message}</div>`;
+    if (countEl) countEl.textContent = 'error';
   }
 }
 
@@ -1297,17 +1304,44 @@ function renderPendingAttendance() {
   const el = document.getElementById('pending-list');
   const countEl = document.getElementById('pending-count');
   if (!el) return;
-  const pending = _pendingAtt.filter(a => a.Notes && a.Notes.includes('[self-reported]'));
+
+  // Accept records tagged [self-reported] OR Status = 'pending'
+  const pending = _pendingAtt.filter(a =>
+    (a.Notes && a.Notes.toString().toLowerCase().includes('self-reported')) ||
+    (a.Status && a.Status.toString().toLowerCase() === 'pending')
+  );
+
   if (countEl) countEl.textContent = pending.length + ' pending';
+
   if (!pending.length) {
-    el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No pending confirmations ✓</div>';
+    // Show ALL attendance records if nothing is pending so trainer can see what came in
+    if (_pendingAtt.length) {
+      el.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:8px 0;margin-bottom:10px">No records marked [self-reported]. Showing all recent attendance (${_pendingAtt.length} records):</div>` +
+        _pendingAtt.slice(0,10).map((a,i) => {
+          const d = a.Date ? new Date(a.Date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) : '—';
+          return `<div class="pending-row">
+            <div class="pending-info">
+              <strong>${a.TraineeName||'Unknown'}</strong> — ${a.SessionType||a.Session||'—'}
+              <span> · ${d} · ${a.Notes||a.Status||'—'}</span>
+            </div>
+            <div class="pending-actions">
+              <button class="btn-confirm" onclick="confirmAtt(${i},'present')">✓ Confirm</button>
+              <button class="btn-override" onclick="confirmAtt(${i},'late')">Late</button>
+              <button class="btn-override" style="background:#FDE8F2;color:#880E4F;border-color:#880E4F" onclick="confirmAtt(${i},'absent')">Absent</button>
+            </div>
+          </div>`;
+        }).join('');
+    } else {
+      el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No attendance records found in the Sheet yet.</div>';
+    }
     return;
   }
+
   el.innerHTML = pending.map((a,i) => {
-    const d = new Date(a.Date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+    const d = a.Date ? new Date(a.Date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) : '—';
     return `<div class="pending-row">
       <div class="pending-info">
-        <strong>${a.TraineeName}</strong> — ${a.SessionType}
+        <strong>${a.TraineeName||'Unknown'}</strong> — ${a.SessionType||a.Session||'—'}
         <span> · ${d} · Self-reported</span>
       </div>
       <div class="pending-actions">
